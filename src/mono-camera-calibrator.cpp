@@ -54,6 +54,17 @@ void MonoCameraCalibrator::add_chessboard_sample(cv::Mat& image)
       object_points_.push_back(obj);
       k_++;
     }
+
+    for (int i = 0; i < image_points_.size(); i++) 
+    {
+      vector< Point2f > v1;
+      for (int j = 0; j < image_points_[i].size(); j++) 
+      {
+        v1.push_back(Point2f((double)image_points_[i][j].x, (double)image_points_[i][j].y));
+        
+      }
+      _img_points_.push_back(v1);
+    }
 }
 
 MonoCameraCalibrator::MonoCameraCalibrator(int board_width, 
@@ -69,11 +80,22 @@ MonoCameraCalibrator::MonoCameraCalibrator(int board_width,
 bool MonoCameraCalibrator::process(int height, int weight, std::vector< cv::Mat >& rvecs, std::vector< cv::Mat >& tvecs,
                                 cv::Mat& cameraMatrix , cv::Mat& distCoeffs)
 {
+  if(object_points_.empty())
+  {
     int flag = 0;
     flag |= CALIB_FIX_K5;
     cv::Size resolution = cv::Size(weight, height);
     calibrateCamera(object_points_, image_points_, resolution, cameraMatrix, distCoeffs, rvecs, tvecs, flag);
+    return true;
+  }
+  else
+  {
+    printf("[ERROR] Couldn't find any samples\n");
+    return false;
+  }
+  
 }
+
 
 
 
