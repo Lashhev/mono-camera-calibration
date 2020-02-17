@@ -29,7 +29,7 @@ double MonoCameraCalibrator::computeReprojectionErrors(const vector< Mat >& rvec
   return std::sqrt(totalErr/totalPoints);
 }
 
-void MonoCameraCalibrator::add_chessboard_sample(cv::Mat& image, bool verbose=false)
+void MonoCameraCalibrator::add_chessboard_sample(cv::Mat& image, bool verbose)
 {
     bool found = false;
     Size board_size = Size(board_width_, board_height_);
