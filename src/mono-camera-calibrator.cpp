@@ -3,7 +3,6 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 
-
 #include "mono-camera-calibrator.hpp"
 
 using namespace std;
@@ -30,7 +29,7 @@ double MonoCameraCalibrator::computeReprojectionErrors(const vector< Mat >& rvec
   return std::sqrt(totalErr/totalPoints);
 }
 
-void MonoCameraCalibrator::add_chessboard_sample(cv::Mat& image)
+void MonoCameraCalibrator::add_chessboard_sample(cv::Mat& image, bool verbose=false)
 {
     bool found = false;
     Size board_size = Size(board_width_, board_height_);
@@ -40,7 +39,14 @@ void MonoCameraCalibrator::add_chessboard_sample(cv::Mat& image)
     {
       cornerSubPix(image, corners_, cv::Size(5, 5), cv::Size(-1, -1),
                    TermCriteria(cv::TermCriteria::EPS | cv::TermCriteria::MAX_ITER, 30, 0.1));
-      drawChessboardCorners(image, board_size, corners_, found);
+      if(verbose)
+      {
+        Mat colored_mat;
+        cvtColor(image, colored_mat, COLOR_GRAY2BGR);
+        drawChessboardCorners(colored_mat, board_size, corners_, found);
+        imshow("Extracted corners", colored_mat);
+        waitKey(1);
+      }
     }
     
     vector< Point3f > obj;
@@ -65,6 +71,7 @@ void MonoCameraCalibrator::add_chessboard_sample(cv::Mat& image)
       }
       _img_points_.push_back(v1);
     }
+    destroyAllWindows();
 }
 
 MonoCameraCalibrator::MonoCameraCalibrator(int board_width, 
@@ -80,7 +87,7 @@ MonoCameraCalibrator::MonoCameraCalibrator(int board_width,
 bool MonoCameraCalibrator::process(int height, int weight, std::vector< cv::Mat >& rvecs, std::vector< cv::Mat >& tvecs,
                                 cv::Mat& cameraMatrix , cv::Mat& distCoeffs)
 {
-  if(object_points_.empty())
+  if(object_points_.size() > 0)
   {
     int flag = 0;
     flag |= CALIB_FIX_K5;
@@ -96,7 +103,20 @@ bool MonoCameraCalibrator::process(int height, int weight, std::vector< cv::Mat 
   
 }
 
+void MonoCameraCalibrator::save_results_to_yaml(const std::string& filename, const cv::Mat& cameraMatrix , const cv::Mat& distCoeffs)
+{
+  
+}
 
+// void MonoCameraCalibrator::save_result_to_cv_config(const std::string& filename, cv::Mat& cameraMatrix , const cv::Mat& distCoeffs)
+// {
+//   FileStorage fs(filename, FileStorage::WRITE);
+//   fs << "K" << cameraMatrix;
+//   fs << "D" << distCoeffs;
+//   fs << "board_width" << board_width_;
+//   fs << "board_height" << board_height_;
+//   fs << "square_size" << square_size_;
+// }
 
 
 

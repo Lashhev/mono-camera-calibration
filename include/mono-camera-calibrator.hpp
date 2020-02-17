@@ -9,11 +9,13 @@ namespace stereo_pi
         {
            public:
             MonoCameraCalibrator(int board_width, int board_height, float square_size);
-            void add_chessboard_sample(cv::Mat& image);
+            void add_chessboard_sample(cv::Mat& image, bool verbose=false);
             bool process(int height, int weight, std::vector< cv::Mat >& rvecs, std::vector< cv::Mat >& tvecs,
                                 cv::Mat& cameraMatrix , cv::Mat& distCoeffs);
             double computeReprojectionErrors(const std::vector< cv::Mat >& rvecs, const std::vector< cv::Mat >& tvecs,
                                  const cv::Mat& cameraMatrix , const cv::Mat& distCoeffs);
+            void save_results_to_yaml(const std::string& filename, const cv::Mat& cameraMatrix , const cv::Mat& distCoeffs);
+            // void save_result_to_cv_config(const std::string& filename, const cv::Mat& cameraMatrix , const cv::Mat& distCoeffs);
             std::vector< std::vector< cv::Point2f > > get_img_points()
             {
                 return _img_points_;
